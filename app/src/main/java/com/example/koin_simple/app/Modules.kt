@@ -4,6 +4,7 @@ import androidx.room.Room
 import com.example.koin_simple.data.DatabaseMigrations
 import com.example.koin_simple.data.MainDatabase
 import com.example.koin_simple.data.MainRepository
+import com.example.koin_simple.network.LogService
 import com.example.koin_simple.network.GithubService
 import com.example.koin_simple.ui.main.MainViewModel
 import org.koin.android.ext.koin.androidApplication
@@ -14,6 +15,10 @@ val modules = module {
 
     single {
         GithubService.create("https://api.github.com/")
+    }
+
+    single {
+        LogService()
     }
 
     single {
@@ -34,7 +39,8 @@ val modules = module {
 
     viewModel {
         MainViewModel(
-            mainRepository = get()
+            mainRepository = get(),
+            logService = get()
         )
     }
 }

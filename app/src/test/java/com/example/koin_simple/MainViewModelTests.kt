@@ -5,6 +5,7 @@ import com.example.koin_simple.data.MainRepository
 import com.example.koin_simple.data.models.Author
 import com.example.koin_simple.data.models.Commit
 import com.example.koin_simple.data.models.CommitDetails
+import com.example.koin_simple.network.LogService
 import com.example.koin_simple.ui.main.MainViewModel
 import io.mockk.*
 import io.mockk.impl.annotations.MockK
@@ -21,7 +22,10 @@ class MainViewModelTests {
     private lateinit var viewModel: MainViewModel
 
     @MockK
-    private lateinit var mainRepository: MainRepository
+    private lateinit var mainRepositoryMockk: MainRepository
+
+    @MockK
+    private lateinit var logServiceMockk: LogService
 
     @get:Rule
     var instantTaskExecutorRule = InstantTaskExecutorRule()
@@ -30,8 +34,13 @@ class MainViewModelTests {
     fun setUp() {
         MockKAnnotations.init(this)
 
+        every { logServiceMockk.logNetworkAttempt() } just Runs
+        every { logServiceMockk.logSuccess() } just Runs
+        every { logServiceMockk.logError() } just Runs
+
         viewModel = MainViewModel(
-            mainRepository
+            mainRepositoryMockk,
+            logServiceMockk
         )
     }
 
@@ -41,14 +50,16 @@ class MainViewModelTests {
         assertEquals("sierraobryan", viewModel.username.value)
         assertEquals("hackerNews", viewModel.repoName.value)
         assertTrue(viewModel.isLoading.value == false)
+        assertTrue(viewModel.isError.value == false)
         assertNull(viewModel.commits.value)
         assertNull(viewModel.fetchCommitsEnabled.value)
     }
 
     @Test
     fun testListCommitSuccess() {
+        every { mainRepositoryMockk.allowNetworkCall.value } returns true
         coEvery {
-            mainRepository.listCommits(any(), any())
+            mainRepositoryMockk.listCommits(any(), any())
         } returns listOf(
             Commit(
                 commit = CommitDetails(
@@ -62,32 +73,31 @@ class MainViewModelTests {
         )
         viewModel.listCommits()
 
-        assertNotNull(viewModel.commits)
+        verify { logServiceMockk.logNetworkAttempt() }
+
+        assertNotNull(viewModel.commits.value)
         assertTrue(viewModel.commits.value?.size == 1)
+
+        coVerify { logServiceMockk.logSuccess() }
+
+        assertTrue(viewModel.isError.value == false)
     }
 
-//    @Test
-//    fun testValidateCode_Success_LoginFailure() {
-//        coEvery {
-//            authInteractorMockK.registerConfirm(any(), any())
-//        } returns AuthInteractor.LoginResult.Success
-//
-//        coEvery {
-//            authInteractorMockK.login(any(), any())
-//        } returns AuthInteractor.LoginResult.Fail("failed")
-//
-//        viewModel.code.postValue("123456")
-//
-//        verify {
-//            analyticsServiceMockK.logAccountVerified("SUCCESS")
-//        }
-//        coVerify {
-//            authInteractorMockK.login(any(), any())
-//        }
-//
-//        coVerify(exactly = 0) {
-//            userRepository.updateMarketing(any())
-//        }
-//    }
+    @Test
+    fun testListCommitFailure() {
+        every { mainRepositoryMockk.allowNetworkCall.value } returns false
 
+        viewModel.listCommits()
+
+        verify(exactly = 1) { logServiceMockk.logNetworkAttempt() }
+
+        coVerify(exactly = 0) {
+            mainRepositoryMockk.listCommits(any(), any())
+        }
+
+        coVerify { logServiceMockk.logError() }
+
+        assertNull(viewModel.commits.value)
+        assertTrue(viewModel.isError.value == true)
+    }
 }
