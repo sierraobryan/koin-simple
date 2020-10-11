@@ -2,8 +2,9 @@ package com.example.koin_simple.network
 
 class LogService {
 
-    fun logNetworkAttempt() {
+    fun logNetworkAttempt(): Boolean {
         // doesn't do anything
+        return true
     }
 
     fun logSuccess() {

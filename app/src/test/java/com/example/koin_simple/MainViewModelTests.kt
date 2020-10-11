@@ -34,7 +34,7 @@ class MainViewModelTests {
     fun setUp() {
         MockKAnnotations.init(this)
 
-        every { logServiceMockk.logNetworkAttempt() } just Runs
+        every { logServiceMockk.logNetworkAttempt() } returns true
         every { logServiceMockk.logSuccess() } just Runs
         every { logServiceMockk.logError() } just Runs
 
@@ -47,9 +47,9 @@ class MainViewModelTests {
     @Test
     fun testInit() {
         assertNotNull(viewModel)
-        assertEquals("sierraobryan", viewModel.username.value)
-        assertEquals("hackerNews", viewModel.repoName.value)
-        assertTrue(viewModel.isLoading.value == false)
+        assertEquals("sierraobryan", viewModel.username)
+        assertEquals("hackerNews", viewModel.repoName)
+        assertTrue(viewModel.loading == false)
         assertTrue(viewModel.isError.value == false)
         assertNull(viewModel.commits.value)
         assertNull(viewModel.fetchCommitsEnabled.value)

@@ -29,18 +29,10 @@ class MainFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         val binding = MainFragmentBinding.inflate(inflater, container, false)
-        binding.lifecycleOwner = viewLifecycleOwner
         binding.vm = viewModel
         binding.commits.layoutManager = LinearLayoutManager(activity)
         binding.commits.adapter = CommitsAdapter()
         return binding.root
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
-
-
     }
 
     private class CommitsAdapter : ArrayAdapter<Commit, CommitViewHolder>() {

@@ -87,7 +87,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/header"
-            app:visible="@{!vm.isLoading}"/>
+            app:visible="@{!vm.loading}"/>
 
         <ProgressBar
             android:id="@+id/progressBar"
@@ -95,13 +95,12 @@
             android:layout_height="wrap_content"
             android:indeterminate="true"
             android:indeterminateTint="@color/colorPrimary"
-            app:visible="@{vm.isLoading}"
+            app:visible="@{vm.loading}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/header"
             tools:visibility="invisible"/>
-
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
